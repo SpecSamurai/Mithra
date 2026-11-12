@@ -14,4 +14,4 @@ dependencies = [
 ]
 
 [tool.fastapi]
-entrypoint = "api:app"
+entrypoint = "backend.api:app"
