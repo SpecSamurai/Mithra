@@ -1,28 +1,40 @@
-from langchain_core.messages import AnyMessage
-from pydantic import BaseModel
-from typing import TypedDict, Annotated
-from langgraph.graph import StateGraph, START, END
-import operator
+from typing import Final, TypedDict
+
+from langgraph.graph import END, START, StateGraph
 
 
-class TestState(TypedDict):
-    text: Annotated[list[AnyMessage], operator.add]
+class State(TypedDict):
+    values: list[int]
+    name: str
+    message: str
 
 
-def mock_llm(state: TestState):
-    return {"text": "hello world"}
+def greeting_node(state: State) -> dict:
+    """
+    Simple node that adds a greeting message to the state
+    """
+
+    return {
+        "message": f"Hey {state['name']}, how are you",
+    }
+
+def process_values(state: State) -> State:
+    """This function handles multiple different inputs"""
+
+    return state
 
 
-builder = StateGraph(TestState)
-builder.add_node(mock_llm)
-builder.add_edge(START, "mock_llm")
-builder.add_edge("mock_llm", END)
+builder = StateGraph(State)  # ty: ignore[invalid-argument-type]
+
+GREETER_NODE: Final = "greeter"
+builder.add_node(GREETER_NODE, greeting_node)
+builder.add_edge(START, GREETER_NODE)
+builder.add_edge(GREETER_NODE, END)
+
 graph = builder.compile()
 
-result = graph.invoke(
-    {
-        "text": "LangGraph lets you build stateful, multi-step LLM applications as graphs."
-    }
-)
+if __name__ == "__main__":
+    print(graph.get_graph().draw_ascii(), "\n", "-" * 20)
 
-print(result)
+    result = graph.invoke({"name": "David"})
+    print(result)
