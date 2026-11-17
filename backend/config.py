@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     version: str
     debug: bool = False
 
+    database_connection_string: SecretStr
+
     groq_api_key: SecretStr
 
     model_config = SettingsConfigDict(
