@@ -1,12 +1,7 @@
-import os
-
-from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_groq import ChatGroq
 
 from backend.config import settings
-
-load_dotenv()
 
 model = ChatGroq(
     model="openai/gpt-oss-120b",
