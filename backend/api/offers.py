@@ -4,14 +4,17 @@ from typing import Annotated
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import UUID4
 
-from ..schemas.offers import ApplicationCreate, JobOffer, jobs
+from backend.database.database import SessionLocal
+from backend.database.models import JobOffer
+from backend.schemas.offers import ApplicationCreate, JobOfferResponse, jobs
 
 router = APIRouter(prefix="/offers", tags=["Offers"])
 
 
 @router.get("")
-async def get_jobs() -> list[JobOffer]:
-    return jobs
+async def get_jobs() -> list[JobOfferResponse]:
+    with SessionLocal() as session, session.begin():
+        return jobs
 
 
 @router.post("/{offer_id}/applications", status_code=HTTPStatus.CREATED)

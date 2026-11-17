@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterable
+from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Form
@@ -12,7 +13,7 @@ router = APIRouter(prefix="/interviews", tags=["Interviews"])
 messages = []
 
 
-@router.post("")
+@router.post("", status_code=HTTPStatus.CREATED)
 def start_interview():
     print("Started interview")
 
