@@ -1,5 +1,9 @@
+from pathlib import Path
+
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
@@ -10,6 +14,8 @@ class Settings(BaseSettings):
     database_connection_string: SecretStr
 
     groq_api_key: SecretStr
+
+    blobs_dir: Path = _PROJECT_ROOT / "blobs"
 
     model_config = SettingsConfigDict(
         env_file=".env",

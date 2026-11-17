@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { getJobPositions, submitApplication } from "../api/mock";
+import { getJobPositions, submitApplication } from "../api/offers";
 import type { JobPosition } from "../types";
 
 export default function ApplicationPage() {
@@ -9,9 +9,27 @@ export default function ApplicationPage() {
   const [cv, setCv] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getJobPositions().then(setJobs);
+    let cancelled = false;
+    getJobPositions()
+      .then((positions) => {
+        if (!cancelled) setJobs(positions);
+      })
+      .catch((reason: unknown) => {
+        if (!cancelled) {
+          setJobs([]);
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : "Could not load job positions.",
+          );
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const selectedJob = jobs?.find((job) => job.id === jobId);
@@ -21,9 +39,16 @@ export default function ApplicationPage() {
     event.preventDefault();
     if (!canSubmit || !cv) return;
     setSubmitting(true);
+    setError(null);
     try {
       await submitApplication({ jobPositionId: jobId, fullName: fullName.trim(), cv });
       setSubmitted(true);
+    } catch (reason: unknown) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Could not submit the application.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -87,6 +112,8 @@ export default function ApplicationPage() {
             />
             <span>{cv ? cv.name : "Choose a file (PDF, DOC, DOCX)"}</span>
           </label>
+
+          {error ? <p className="form-error">{error}</p> : null}
 
           <button type="submit" disabled={!canSubmit}>
             {submitting ? "Submitting…" : "Submit application"}

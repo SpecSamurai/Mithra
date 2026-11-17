@@ -173,6 +173,10 @@ body {
   color: var(--muted);
 }
 
+.form-card p.form-error {
+  color: var(--reject);
+}
+
 .form-card label {
   font-size: 0.875rem;
   font-weight: 600;
