@@ -1,0 +1,16 @@
+name: mithra
+services:
+  postgres:
+    build:
+      context: ./docker/postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mithra
+    volumes:
+      - mithra_pgdata:/var/lib/postgresql/data
+
+volumes:
+  mithra_pgdata:
