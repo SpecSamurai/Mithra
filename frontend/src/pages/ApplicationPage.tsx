@@ -44,54 +44,66 @@ export default function ApplicationPage() {
   }
 
   return (
-    <div className="page page--center">
-      <form className="form-card" onSubmit={handleSubmit}>
-        <h1>Apply for a position</h1>
-        <p>Select a job position and upload your CV.</p>
+    <div className="page page--apply">
+      <div className="apply">
+        <form className="form-card" onSubmit={handleSubmit}>
+          <h1>Apply for a position</h1>
+          <p>Select a job position and upload your CV.</p>
 
-        <label htmlFor="job-position">Job position</label>
-        <select
-          id="job-position"
-          value={jobId}
-          onChange={(event) => setJobId(event.target.value)}
-          disabled={!jobs}
-        >
-          <option value="" disabled>
-            {jobs ? "Select a position…" : "Loading…"}
-          </option>
-          {jobs?.map((job) => (
-            <option key={job.id} value={job.id}>
-              {job.title}
+          <label htmlFor="job-position">Job position</label>
+          <select
+            id="job-position"
+            value={jobId}
+            onChange={(event) => setJobId(event.target.value)}
+            disabled={!jobs}
+          >
+            <option value="" disabled>
+              {jobs ? "Select a position…" : "Loading…"}
             </option>
-          ))}
-        </select>
-        {selectedJob && <p className="hint">{selectedJob.description}</p>}
+            {jobs?.map((job) => (
+              <option key={job.id} value={job.id}>
+                {job.title}
+              </option>
+            ))}
+          </select>
 
-        <label htmlFor="full-name">Full name</label>
-        <input
-          id="full-name"
-          type="text"
-          autoComplete="name"
-          value={fullName}
-          onChange={(event) => setFullName(event.target.value)}
-          placeholder="Jane Doe"
-        />
-
-        <label htmlFor="cv">CV</label>
-        <label className="file-drop" htmlFor="cv">
+          <label htmlFor="full-name">Full name</label>
           <input
-            id="cv"
-            type="file"
-            accept=".pdf,.doc,.docx"
-            onChange={(event) => setCv(event.target.files?.[0] ?? null)}
+            id="full-name"
+            type="text"
+            autoComplete="name"
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            placeholder="Jane Doe"
           />
-          <span>{cv ? cv.name : "Choose a file (PDF, DOC, DOCX)"}</span>
-        </label>
 
-        <button type="submit" disabled={!canSubmit}>
-          {submitting ? "Submitting…" : "Submit application"}
-        </button>
-      </form>
+          <label htmlFor="cv">CV</label>
+          <label className="file-drop" htmlFor="cv">
+            <input
+              id="cv"
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={(event) => setCv(event.target.files?.[0] ?? null)}
+            />
+            <span>{cv ? cv.name : "Choose a file (PDF, DOC, DOCX)"}</span>
+          </label>
+
+          <button type="submit" disabled={!canSubmit}>
+            {submitting ? "Submitting…" : "Submit application"}
+          </button>
+        </form>
+
+        <aside className="job-brief" aria-live="polite">
+          {selectedJob ? (
+            <>
+              <h2>{selectedJob.title}</h2>
+              <div className="job-brief__body">{selectedJob.description}</div>
+            </>
+          ) : (
+            <p className="muted">Select a position to read the full description.</p>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }
