@@ -36,14 +36,19 @@ class Interview(Base):
     application_id: Mapped[int] = mapped_column(
         ForeignKey("applications.id"), unique=True
     )
-    conducted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    conducted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     status: Mapped[Literal["pending", "approved", "rejected"]] = mapped_column(
-        String(20)
-    )  # created, pending, finished
-    score: Mapped[int | None] = mapped_column(SmallInteger)
-    summary: Mapped[str | None] = mapped_column(String)
+        String(20), default="pending"
+    )
+    score: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    summary: Mapped[str | None] = mapped_column(String, nullable=True)
     application: Mapped[Application] = relationship(back_populates="interview")
-    messages: Mapped[list[Message]] = relationship(back_populates="interview")
+    messages: Mapped[list[Message]] = relationship(
+        back_populates="interview",
+        order_by="Message.created_at",
+    )
 
 
 class Message(Base):

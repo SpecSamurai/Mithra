@@ -7,6 +7,7 @@ from sqlalchemy import select
 
 from backend.database.database import SessionLocal
 from backend.database.models import Interview
+from backend.schemas.interviews import ChatMessage
 from backend.schemas.recruiter import EvaluationResponse
 
 router = APIRouter(prefix="/recruiter", tags=["Recruiter"])
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/recruiter", tags=["Recruiter"])
 
 @router.get("/evaluations")
 def evaluations(
-    status: Literal["pending", "approved", "rejected"] | None,
+    status: Literal["pending", "approved", "rejected"] | None = None,
 ) -> list[EvaluationResponse]:
     with SessionLocal() as session, session.begin():
         query = select(Interview)
@@ -56,7 +57,10 @@ def get_evaluation(id: UUID4) -> EvaluationResponse:
             score=interview.score,
             conducted_at=interview.conducted_at,
             assessment=interview.summary,
-            transcript=[],
+            transcript=[
+                ChatMessage(id=item.public_id, user=item.role, text=item.text)
+                for item in interview.messages
+            ],
         )
 
 

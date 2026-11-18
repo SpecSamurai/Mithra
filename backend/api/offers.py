@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from backend.config import settings
 from backend.database.database import SessionLocal
-from backend.database.models import Application, JobOffer
+from backend.database.models import Application, Interview, JobOffer
 from backend.schemas.offers import JobOfferResponse
 
 router = APIRouter(prefix="/offers", tags=["Offers"])
@@ -51,11 +51,14 @@ async def apply(
         settings.blobs_dir.mkdir(parents=True, exist_ok=True)
         destination = settings.blobs_dir / f"{application_id}{suffix}"
         destination.write_bytes(data)
-        session.add(
-            Application(
-                public_id=application_id,
-                candidate=full_name,
-                cv_url=relative_path,
-                job_offer_id=offer.id,
-            )
+        application = Application(
+            public_id=application_id,
+            candidate=full_name,
+            cv_url=relative_path,
+            job_offer_id=offer.id,
         )
+        session.add(application)
+        session.flush()
+
+        # temp remove later, agent will make sure to create an interview or notapi
+        session.add(Interview(public_id=uuid4(), application_id=application.id))
