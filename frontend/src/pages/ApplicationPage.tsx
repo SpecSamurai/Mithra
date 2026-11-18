@@ -41,7 +41,11 @@ export default function ApplicationPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await submitApplication({ jobPositionId: jobId, fullName: fullName.trim(), cv });
+      await submitApplication({
+        jobPositionId: jobId,
+        fullName: fullName.trim(),
+        cv,
+      });
       setSubmitted(true);
     } catch (reason: unknown) {
       setError(

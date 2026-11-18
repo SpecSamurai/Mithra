@@ -12,6 +12,7 @@ export default function App() {
         <Route index element={<Navigate to="/application" replace />} />
         <Route path="application" element={<ApplicationPage />} />
         <Route path="interview" element={<InterviewPage />} />
+        <Route path="interview/:interviewId" element={<InterviewPage />} />
         <Route path="evaluation" element={<EvaluationPage />} />
         <Route path="evaluation/:interviewId" element={<InterviewReviewPage />} />
         <Route path="*" element={<Navigate to="/application" replace />} />

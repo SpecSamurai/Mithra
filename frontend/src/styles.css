@@ -148,6 +148,10 @@ body {
   }
 }
 
+.interview-lookup {
+  margin-bottom: 0.25rem;
+}
+
 .form-card {
   width: min(100%, 24rem);
   background: var(--surface);
@@ -173,7 +177,7 @@ body {
   color: var(--muted);
 }
 
-.form-card p.form-error {
+p.form-error {
   color: var(--reject);
 }
 
@@ -232,6 +236,25 @@ button:disabled {
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.chat-thread {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-empty {
+  padding: 1.25rem 1.25rem 0;
+}
+
+.chat-thread .form-error {
+  margin: 0;
+  padding: 0.75rem 1.25rem 0;
+}
+
+.chat-thread .chat-messages {
+  flex: 1;
 }
 
 .chat-messages {
@@ -430,6 +453,11 @@ button:disabled {
 .badge--rejected {
   color: var(--reject);
   background: var(--reject-bg);
+}
+
+.badge--unset {
+  color: var(--muted);
+  background: var(--border);
 }
 
 .back-link {

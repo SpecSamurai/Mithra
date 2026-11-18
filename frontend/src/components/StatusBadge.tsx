@@ -6,6 +6,13 @@ const labels: Record<InterviewStatus, string> = {
   rejected: "Rejected",
 };
 
-export default function StatusBadge({ status }: { status: InterviewStatus }) {
+export default function StatusBadge({
+  status,
+}: {
+  status: InterviewStatus | null;
+}) {
+  if (status === null) {
+    return <span className="badge badge--unset">No decision</span>;
+  }
   return <span className={`badge badge--${status}`}>{labels[status]}</span>;
 }

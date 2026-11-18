@@ -2,9 +2,10 @@ import { useState, type FormEvent } from "react";
 
 type ComposerProps = {
   onSend: (text: string) => void;
+  disabled?: boolean;
 };
 
-export default function Composer({ onSend }: ComposerProps) {
+export default function Composer({ onSend, disabled = false }: ComposerProps) {
   const [draft, setDraft] = useState("");
 
   function handleSubmit(event: FormEvent) {
@@ -23,8 +24,9 @@ export default function Composer({ onSend }: ComposerProps) {
         onChange={(event) => setDraft(event.target.value)}
         placeholder="Type a message…"
         autoFocus
+        disabled={disabled}
       />
-      <button type="submit" disabled={!draft.trim()}>
+      <button type="submit" disabled={disabled || !draft.trim()}>
         Send
       </button>
     </form>

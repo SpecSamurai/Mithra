@@ -1,7 +1,7 @@
 export type Role = "user" | "interviewer";
 
 export type ChatMessage = {
-  id: number;
+  id: string;
   role: Role;
   text: string;
 };
@@ -19,12 +19,11 @@ export type Decision = Exclude<InterviewStatus, "pending">;
 export type Interview = {
   id: string;
   candidateName: string;
-  jobPositionId: string;
   jobTitle: string;
-  conductedAt: string; // ISO date
-  score: number; // 0-100
-  summary: string;
-  status: InterviewStatus;
+  conductedAt: string | null;
+  score: number | null;
+  summary: string | null;
+  status: InterviewStatus | null;
   transcript: ChatMessage[];
 };
 

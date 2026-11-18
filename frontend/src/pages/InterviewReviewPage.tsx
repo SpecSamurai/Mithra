@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { getInterview, setInterviewDecision } from "../api/mock";
+import { getEvaluation, setEvaluationDecision } from "../api/evaluations";
 import MessageList from "../components/chat/MessageList";
 import StatusBadge from "../components/StatusBadge";
 import type { Decision, Interview } from "../types";
@@ -10,16 +10,40 @@ export default function InterviewReviewPage() {
   const { interviewId = "" } = useParams();
   const [interview, setInterview] = useState<Interview | null | undefined>(null);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     setInterview(null);
-    getInterview(interviewId).then(setInterview);
+    setError(null);
+    getEvaluation(interviewId)
+      .then((row) => {
+        if (!cancelled) setInterview(row);
+      })
+      .catch((reason: unknown) => {
+        if (!cancelled) {
+          setInterview(undefined);
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : "Could not load the evaluation.",
+          );
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [interviewId]);
 
   async function decide(decision: Decision) {
     setSaving(true);
+    setError(null);
     try {
-      setInterview(await setInterviewDecision(interviewId, decision));
+      setInterview(await setEvaluationDecision(interviewId, decision));
+    } catch (reason: unknown) {
+      setError(
+        reason instanceof Error ? reason.message : "Could not save the decision.",
+      );
     } finally {
       setSaving(false);
     }
@@ -37,7 +61,7 @@ export default function InterviewReviewPage() {
     return (
       <div className="page page--content">
         <Link className="back-link" to="/evaluation">← Back to interviews</Link>
-        <p>Interview not found.</p>
+        <p>{error ?? "Interview not found."}</p>
       </div>
     );
   }
@@ -50,7 +74,10 @@ export default function InterviewReviewPage() {
         <div>
           <h1>{interview.candidateName}</h1>
           <p className="muted">
-            {interview.jobTitle} · {formatDate(interview.conductedAt)}
+            {interview.jobTitle}
+            {interview.conductedAt
+              ? ` · ${formatDate(interview.conductedAt)}`
+              : ""}
           </p>
         </div>
         <StatusBadge status={interview.status} />
@@ -59,9 +86,11 @@ export default function InterviewReviewPage() {
       <section className="card">
         <div className="card__title">
           <h2>Assessment</h2>
-          <span className="score">{interview.score}/100</span>
+          <span className="score">
+            {interview.score === null ? "—" : `${interview.score}/100`}
+          </span>
         </div>
-        <p>{interview.summary}</p>
+        <p>{interview.summary ?? "No assessment yet."}</p>
       </section>
 
       <section className="card card--flush">
@@ -72,6 +101,8 @@ export default function InterviewReviewPage() {
           autoScroll={false}
         />
       </section>
+
+      {error ? <p className="form-error">{error}</p> : null}
 
       <div className="decision-bar">
         <button

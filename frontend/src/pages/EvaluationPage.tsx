@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { getInterviews } from "../api/mock";
+import { getEvaluations } from "../api/evaluations";
 import StatusBadge from "../components/StatusBadge";
 import { formatDate } from "../format";
 import type { Interview, InterviewStatus } from "../types";
@@ -17,13 +17,33 @@ const filters: { value: Filter; label: string }[] = [
 export default function EvaluationPage() {
   const [interviews, setInterviews] = useState<Interview[] | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getInterviews().then(setInterviews);
+    let cancelled = false;
+    getEvaluations()
+      .then((rows) => {
+        if (!cancelled) setInterviews(rows);
+      })
+      .catch((reason: unknown) => {
+        if (!cancelled) {
+          setInterviews([]);
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : "Could not load evaluations.",
+          );
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const visible =
-    interviews?.filter((i) => filter === "all" || i.status === filter) ?? [];
+    interviews?.filter(
+      (interview) => filter === "all" || interview.status === filter,
+    ) ?? [];
 
   return (
     <div className="page page--content">
@@ -47,11 +67,13 @@ export default function EvaluationPage() {
         ))}
       </div>
 
+      {error ? <p className="form-error">{error}</p> : null}
+
       {!interviews ? (
         <p className="muted">Loading interviews…</p>
-      ) : visible.length === 0 ? (
+      ) : visible.length === 0 && !error ? (
         <p className="muted">No interviews to show.</p>
-      ) : (
+      ) : visible.length === 0 ? null : (
         <ul className="interview-list">
           {visible.map((interview) => (
             <li key={interview.id}>
@@ -59,12 +81,17 @@ export default function EvaluationPage() {
                 <div className="interview-row__main">
                   <span className="interview-row__name">{interview.candidateName}</span>
                   <span className="muted">
-                    {interview.jobTitle} · {formatDate(interview.conductedAt)}
+                    {interview.jobTitle}
+                    {interview.conductedAt
+                      ? ` · ${formatDate(interview.conductedAt)}`
+                      : ""}
                   </span>
-                  <span className="interview-row__summary">{interview.summary}</span>
+                  <span className="interview-row__summary">
+                    {interview.summary ?? "No assessment yet"}
+                  </span>
                 </div>
                 <div className="interview-row__meta">
-                  <span className="score">{interview.score}</span>
+                  <span className="score">{interview.score ?? "—"}</span>
                   <StatusBadge status={interview.status} />
                 </div>
               </Link>
