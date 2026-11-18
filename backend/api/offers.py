@@ -10,7 +10,7 @@ from sqlalchemy import select
 from backend.config import settings
 from backend.database.database import SessionLocal
 from backend.database.models import Application, JobOffer
-from backend.schemas.offers import ApplicationCreate, JobOfferResponse
+from backend.schemas.offers import JobOfferResponse
 
 router = APIRouter(prefix="/offers", tags=["Offers"])
 
@@ -32,7 +32,7 @@ async def apply(
     offer_id: UUID4,
     full_name: Annotated[str, Form(min_length=1, max_length=200)],
     cv: Annotated[UploadFile, File(...)],
-) -> ApplicationCreate:
+) -> None:
     suffix = Path(cv.filename or "").suffix.lower()
     data = await cv.read()
 
@@ -59,5 +59,3 @@ async def apply(
                 job_offer_id=offer.id,
             )
         )
-
-    return ApplicationCreate(id=application_id, job_offer_id=offer_id, status="pending")

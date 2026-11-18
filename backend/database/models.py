@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Literal
 from uuid import uuid4
 
 from sqlalchemy import DateTime, ForeignKey, SmallInteger, String, Uuid
@@ -35,10 +36,12 @@ class Interview(Base):
     application_id: Mapped[int] = mapped_column(
         ForeignKey("applications.id"), unique=True
     )
-    conducted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    conducted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    status: Mapped[Literal["pending", "approved", "rejected"]] = mapped_column(
+        String(20)
+    )  # created, pending, finished
     score: Mapped[int | None] = mapped_column(SmallInteger)
     summary: Mapped[str | None] = mapped_column(String)
-    status: Mapped[str] = mapped_column(String(20), default="pending")
     application: Mapped[Application] = relationship(back_populates="interview")
     messages: Mapped[list[Message]] = relationship(back_populates="interview")
 
@@ -48,7 +51,7 @@ class Message(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     public_id: Mapped[uuid.UUID] = mapped_column(Uuid, unique=True, default=uuid4)
     interview_id: Mapped[int] = mapped_column(ForeignKey("interviews.id"))
-    role: Mapped[str] = mapped_column(String(20))  # "candidate" or "interviewer"
+    role: Mapped[Literal["interviewer", "candidate"]] = mapped_column(String(20))
     text: Mapped[str] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     interview: Mapped[Interview] = relationship(back_populates="messages")
